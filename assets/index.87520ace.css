@@ -121,9 +121,9 @@ a,.green{text-decoration:none;color:#00bd7e;transition:.4s}
 
 #ascensionIcon{
   position:absolute;
-  right:26px;
-  bottom:24px;
-  width:82px;
+  right:18px;
+  bottom:34px;
+  width:68px;
   height:auto;
   display:none;
   z-index:40;
@@ -132,14 +132,14 @@ a,.green{text-decoration:none;color:#00bd7e;transition:.4s}
 
 #ascensionNumber{
   position:absolute;
-  right:67px;
-  bottom:66px;
+  right:52px;
+  bottom:69px;
   transform:translate(50%,50%);
   display:none;
   z-index:41;
   pointer-events:none;
   font-family:Hanzel Normal, sans-serif;
-  font-size:28px;
+  font-size:22px;
   line-height:1;
   font-weight:bold;
   color:#fff;
@@ -148,5 +148,5 @@ a,.green{text-decoration:none;color:#00bd7e;transition:.4s}
      2px -2px 0 #000,
     -2px  2px 0 #000,
      2px  2px 0 #000,
-     0px  0px 6px #000;
+     0px  0px 5px #000;
 }
