@@ -1,156 +1,176 @@
 <!DOCTYPE html>
+
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-    <link rel="manifest" href="site.webmanifest">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MCoC | Portrayer</title>
-    <script type="module" crossorigin src="./assets/index.8198a119.js"></script>
-    <link rel="stylesheet" href="./assets/index.87520ace.css">
-  </head>
-  <script>
+<head>
+<meta charset="UTF-8" />
+
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="manifest" href="site.webmanifest">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<title>MCoC | Portrayer</title>
+
+<script type="module" crossorigin src="./assets/index.8198a119.js"></script>
+
+<link rel="stylesheet" href="./assets/index.87520ace.css">
+
+</head>
+
+<script>
 (function () {
-  const KEY = "useOld7Frame";
 
-  function getFlag() {
-    return localStorage.getItem(KEY) === "1";
-  }
-  function setFlag(v) {
-    localStorage.setItem(KEY, v ? "1" : "0");
-  }
+const KEY = "useOld7Frame";
 
-  // 1) Hook: si se pide champion-frame-7.png y el toggle está activo -> usar old_champion-frame-7.png
-  try {
-    const desc = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, "src");
-    if (desc && typeof desc.set === "function" && typeof desc.get === "function") {
-      Object.defineProperty(HTMLImageElement.prototype, "src", {
-        get: desc.get,
-        set: function (value) {
-          try {
-            if (getFlag() && typeof value === "string" && value.includes("champion-frame-7.png") && !value.includes("old_champion-frame-7.png")) {
-              value = value.replace("champion-frame-7.png", "old_champion-frame-7.png");
-            }
-          } catch (e) {}
-          return desc.set.call(this, value);
-        },
-        configurable: true,
-        enumerable: true
-      });
-    }
-  } catch (e) {}
+function getFlag(){
+return localStorage.getItem(KEY) === "1";
+}
 
-  // 2) UI: insertar checkbox justo debajo del label que contiene "ESTA DUPLICADO?"
-  function injectCheckbox() {
-    const labels = Array.from(document.querySelectorAll("label"));
-    const target = labels.find(l => (l.textContent || "").trim().toUpperCase().includes("ESTA DUPLICADO"));
-    if (!target) return false;
+function setFlag(v){
+localStorage.setItem(KEY, v ? "1" : "0");
+}
 
-    // Evitar duplicados si recarga/SPA
-    if (document.getElementById("toggle-old-7frame")) return true;
+/* hook para cambiar el marco */
 
-    const wrap = document.createElement("label");
-    wrap.style.display = "flex";
-    wrap.style.alignItems = "center";
-    wrap.style.gap = "8px";
-    wrap.style.marginTop = "8px";
+try{
 
-    const cb = document.createElement("input");
-    cb.type = "checkbox";
-    cb.id = "toggle-old-7frame";
-    cb.checked = getFlag();
+const desc = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype,"src");
 
-    const span = document.createElement("span");
-    span.textContent = "Usar marco 7★ ASCENSION?";
+if(desc && typeof desc.set==="function"){
 
-    cb.addEventListener("change", () => {
-      setFlag(cb.checked);
-      // refresco “bruto” para que se re-carguen imágenes con el nuevo comportamiento
-      location.reload();
-    });
+Object.defineProperty(HTMLImageElement.prototype,"src",{
 
-    wrap.appendChild(cb);
-    wrap.appendChild(span);
+get:desc.get,
 
-    // Insertar justo debajo del bloque del "ESTA DUPLICADO?"
-    target.insertAdjacentElement("afterend", wrap);
-    return true;
-  }
+set:function(value){
 
-  // Esperar a que la app pinte el formulario
-  let tries = 0;
-  const timer = setInterval(() => {
-    tries++;
-    if (injectCheckbox() || tries > 80) clearInterval(timer);
-  }, 100);
+try{
+
+if(getFlag() && typeof value==="string" && value.includes("champion-frame-7.png") && !value.includes("old_champion-frame-7.png")){
+
+value=value.replace("champion-frame-7.png","old_champion-frame-7.png");
+
+}
+
+}catch(e){}
+
+return desc.set.call(this,value);
+
+},
+
+configurable:true
+
+});
+
+}
+
+}catch(e){}
+
+/* insertar checkbox */
+
+function injectCheckbox(){
+
+const labels = Array.from(document.querySelectorAll("label"));
+
+const target = labels.find(l => (l.textContent||"").trim().toUpperCase().includes("ESTA DUPLICADO"));
+
+if(!target) return false;
+
+if(document.getElementById("toggle-old-7frame")) return true;
+
+const wrap=document.createElement("label");
+
+wrap.style.display="flex";
+wrap.style.alignItems="center";
+wrap.style.gap="8px";
+wrap.style.marginTop="8px";
+
+const cb=document.createElement("input");
+cb.type="checkbox";
+cb.id="toggle-old-7frame";
+cb.checked=getFlag();
+
+const span=document.createElement("span");
+span.textContent="Usar marco 7★ ASCENSION?";
+
+const level=document.createElement("select");
+level.id="ascensionLevel";
+
+for(let i=1;i<=12;i++){
+
+const opt=document.createElement("option");
+opt.value=i;
+opt.textContent=i;
+
+level.appendChild(opt);
+
+}
+
+level.style.display="none";
+level.style.marginLeft="10px";
+
+cb.addEventListener("change",()=>{
+
+setFlag(cb.checked);
+
+if(cb.checked){
+
+level.style.display="inline";
+
+document.getElementById("ascensionIcon").style.display="block";
+document.getElementById("ascensionNumber").style.display="block";
+
+}else{
+
+level.style.display="none";
+
+document.getElementById("ascensionIcon").style.display="none";
+document.getElementById("ascensionNumber").style.display="none";
+
+}
+
+location.reload();
+
+});
+
+level.addEventListener("change",()=>{
+
+document.getElementById("ascensionNumber").innerText=level.value;
+
+});
+
+wrap.appendChild(cb);
+wrap.appendChild(span);
+wrap.appendChild(level);
+
+target.insertAdjacentElement("afterend",wrap);
+
+return true;
+
+}
+
+let tries=0;
+
+const timer=setInterval(()=>{
+
+tries++;
+
+if(injectCheckbox() || tries>80) clearInterval(timer);
+
+},100);
+
 })();
 </script>
-  <body>
-    <div id="app"></div>
 
-   <!-- SISTEMA ASCENSION -->
-<div id="ascension-controls" style="position:fixed;top:10px;right:10px;background:#111;padding:10px;border-radius:8px;color:white;z-index:9999;font-family:sans-serif">
+<body>
 
-<label>
-<input type="checkbox" id="ascensionToggle">
-ASCENSION
-</label>
-
-<br>
-
-Nivel
-<select id="ascensionLevel">
-<option>1</option>
-<option>2</option>
-<option>3</option>
-<option>4</option>
-<option>5</option>
-<option>6</option>
-<option>7</option>
-<option>8</option>
-<option>9</option>
-<option>10</option>
-<option>11</option>
-<option>12</option>
-</select>
-
-</div>
+<div id="app"></div>
 
 <img id="ascensionIcon" src="assets/ascension.png">
 <div id="ascensionNumber">1</div>
 
-<script>
+</body>
 
-const ascToggle = document.getElementById("ascensionToggle");
-const ascIcon = document.getElementById("ascensionIcon");
-const ascNumber = document.getElementById("ascensionNumber");
-const ascLevel = document.getElementById("ascensionLevel");
-
-ascToggle.addEventListener("change", () => {
-
-if(ascToggle.checked){
-
-ascIcon.style.display="block";
-ascNumber.style.display="block";
-
-}else{
-
-ascIcon.style.display="none";
-ascNumber.style.display="none";
-
-}
-
-});
-
-ascLevel.addEventListener("change", () => {
-
-ascNumber.innerText = ascLevel.value;
-
-});
-
-</script> 
-    
-  </body>
 </html>
