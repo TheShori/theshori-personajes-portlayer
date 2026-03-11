@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
+
 <meta charset="UTF-8" />
 
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
@@ -14,163 +14,84 @@
 <title>MCoC | Portrayer</title>
 
 <script type="module" crossorigin src="./assets/index.8198a119.js"></script>
-
 <link rel="stylesheet" href="./assets/index.87520ace.css">
 
 </head>
-
-<script>
-(function () {
-
-const KEY = "useOld7Frame";
-
-function getFlag(){
-return localStorage.getItem(KEY) === "1";
-}
-
-function setFlag(v){
-localStorage.setItem(KEY, v ? "1" : "0");
-}
-
-/* hook para cambiar el marco */
-
-try{
-
-const desc = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype,"src");
-
-if(desc && typeof desc.set==="function"){
-
-Object.defineProperty(HTMLImageElement.prototype,"src",{
-
-get:desc.get,
-
-set:function(value){
-
-try{
-
-if(getFlag() && typeof value==="string" && value.includes("champion-frame-7.png") && !value.includes("old_champion-frame-7.png")){
-
-value=value.replace("champion-frame-7.png","old_champion-frame-7.png");
-
-}
-
-}catch(e){}
-
-return desc.set.call(this,value);
-
-},
-
-configurable:true
-
-});
-
-}
-
-}catch(e){}
-
-/* insertar checkbox */
-
-function injectCheckbox(){
-
-const labels = Array.from(document.querySelectorAll("label"));
-
-const target = labels.find(l => (l.textContent||"").trim().toUpperCase().includes("ESTA DUPLICADO"));
-
-if(!target) return false;
-
-if(document.getElementById("toggle-old-7frame")) return true;
-
-const wrap=document.createElement("label");
-
-wrap.style.display="flex";
-wrap.style.alignItems="center";
-wrap.style.gap="8px";
-wrap.style.marginTop="8px";
-
-const cb=document.createElement("input");
-cb.type="checkbox";
-cb.id="toggle-old-7frame";
-cb.checked=getFlag();
-
-const span=document.createElement("span");
-span.textContent="Usar marco 7★ ASCENSION?";
-
-const level=document.createElement("select");
-level.id="ascensionLevel";
-
-for(let i=1;i<=12;i++){
-
-const opt=document.createElement("option");
-opt.value=i;
-opt.textContent=i;
-
-level.appendChild(opt);
-
-}
-
-level.style.display="none";
-level.style.marginLeft="10px";
-
-cb.addEventListener("change",()=>{
-
-setFlag(cb.checked);
-
-if(cb.checked){
-
-level.style.display="inline";
-
-document.getElementById("ascensionIcon").style.display="block";
-document.getElementById("ascensionNumber").style.display="block";
-
-}else{
-
-level.style.display="none";
-
-document.getElementById("ascensionIcon").style.display="none";
-document.getElementById("ascensionNumber").style.display="none";
-
-}
-
-location.reload();
-
-});
-
-level.addEventListener("change",()=>{
-
-document.getElementById("ascensionNumber").innerText=level.value;
-
-});
-
-wrap.appendChild(cb);
-wrap.appendChild(span);
-wrap.appendChild(level);
-
-target.insertAdjacentElement("afterend",wrap);
-
-return true;
-
-}
-
-let tries=0;
-
-const timer=setInterval(()=>{
-
-tries++;
-
-if(injectCheckbox() || tries>80) clearInterval(timer);
-
-},100);
-
-})();
-</script>
 
 <body>
 
 <div id="app"></div>
 
-<img id="ascensionIcon" src="assets/ascension.png">
-<div id="ascensionNumber">1</div>
+<script>
+
+function injectAscension(){
+
+const preview = document.querySelector("#preview");
+
+if(!preview) return;
+
+if(document.getElementById("ascensionIcon")) return;
+
+const icon = document.createElement("img");
+icon.id = "ascensionIcon";
+icon.src = "assets/ascension.png";
+
+const number = document.createElement("div");
+number.id = "ascensionNumber";
+number.innerText = "1";
+
+preview.appendChild(icon);
+preview.appendChild(number);
+
+}
+
+function hookCheckbox(){
+
+const labels = Array.from(document.querySelectorAll("label"));
+
+const target = labels.find(l =>
+(l.textContent || "").toUpperCase().includes("ASCENSION")
+);
+
+if(!target) return;
+
+const checkbox = target.querySelector("input");
+
+if(!checkbox) return;
+
+checkbox.addEventListener("change", () => {
+
+const icon = document.getElementById("ascensionIcon");
+const number = document.getElementById("ascensionNumber");
+
+if(!icon) return;
+
+if(checkbox.checked){
+
+icon.style.display = "block";
+number.style.display = "block";
+
+}else{
+
+icon.style.display = "none";
+number.style.display = "none";
+
+}
+
+});
+
+}
+
+function init(){
+
+injectAscension();
+hookCheckbox();
+
+}
+
+setInterval(init,500);
+
+</script>
 
 </body>
-
 </html>
