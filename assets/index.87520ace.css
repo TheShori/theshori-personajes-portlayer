@@ -121,9 +121,9 @@ a,.green{text-decoration:none;color:#00bd7e;transition:.4s}
 
 #ascensionIcon{
   position:absolute;
-  right:18px;
-  bottom:34px;
-  width:68px;
+  right:52px;
+  bottom:58px;
+  width:74px;
   height:auto;
   display:none;
   z-index:40;
@@ -132,14 +132,14 @@ a,.green{text-decoration:none;color:#00bd7e;transition:.4s}
 
 #ascensionNumber{
   position:absolute;
-  right:52px;
-  bottom:69px;
+  right:89px;
+  bottom:95px;
   transform:translate(50%,50%);
   display:none;
   z-index:41;
   pointer-events:none;
   font-family:Hanzel Normal, sans-serif;
-  font-size:22px;
+  font-size:24px;
   line-height:1;
   font-weight:bold;
   color:#fff;
