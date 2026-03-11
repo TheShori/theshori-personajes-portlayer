@@ -1,97 +1,337 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="manifest" href="site.webmanifest">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MCoC | Portrayer</title>
+    <script type="module" crossorigin src="./assets/index.8198a119.js"></script>
+    <link rel="stylesheet" href="./assets/index.87520ace.css">
+  </head>
 
-<meta charset="UTF-8" />
+  <script>
+  (function () {
+    const FRAME_KEY = "useOld7Frame";
+    const ASC_KEY = "ascensionEnabled";
+    const ASC_LEVEL_KEY = "ascensionLevel";
 
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-<link rel="manifest" href="site.webmanifest">
+    function getFrameFlag() {
+      return localStorage.getItem(FRAME_KEY) === "1";
+    }
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    function setFrameFlag(v) {
+      localStorage.setItem(FRAME_KEY, v ? "1" : "0");
+    }
 
-<title>MCoC | Portrayer</title>
+    function getAscensionFlag() {
+      return localStorage.getItem(ASC_KEY) === "1";
+    }
 
-<script type="module" crossorigin src="./assets/index.8198a119.js"></script>
-<link rel="stylesheet" href="./assets/index.87520ace.css">
+    function setAscensionFlag(v) {
+      localStorage.setItem(ASC_KEY, v ? "1" : "0");
+    }
 
-</head>
+    function getAscensionLevel() {
+      return localStorage.getItem(ASC_LEVEL_KEY) || "1";
+    }
 
-<body>
+    function setAscensionLevel(v) {
+      localStorage.setItem(ASC_LEVEL_KEY, String(v));
+    }
 
-<div id="app"></div>
+    function getCurrentTier() {
+      const tierInput = document.querySelector('input[type="number"][min="1"][max="7"]');
+      if (!tierInput) return 7;
+      const value = parseInt(tierInput.value || "7", 10);
+      return Number.isFinite(value) ? value : 7;
+    }
 
-<script>
+    function getAscensionAssetPath() {
+      return "assets/ascension.PNG";
+    }
 
-function injectAscension(){
+    function ensureAscensionOverlay() {
+      const preview = document.getElementById("preview");
+      if (!preview) return false;
 
-const preview = document.querySelector("#preview");
+      if (!document.getElementById("ascensionIcon")) {
+        const icon = document.createElement("img");
+        icon.id = "ascensionIcon";
+        icon.alt = "Ascension";
+        icon.src = getAscensionAssetPath();
+        icon.onerror = function () {
+          this.onerror = null;
+          this.src = "assets/ascension.png";
+        };
+        preview.appendChild(icon);
+      }
 
-if(!preview) return;
+      if (!document.getElementById("ascensionNumber")) {
+        const number = document.createElement("div");
+        number.id = "ascensionNumber";
+        number.textContent = getAscensionLevel();
+        preview.appendChild(number);
+      }
 
-if(document.getElementById("ascensionIcon")) return;
+      updateAscensionVisibility();
+      return true;
+    }
 
-const icon = document.createElement("img");
-icon.id = "ascensionIcon";
-icon.src = "assets/ascension.png";
+    function updateAscensionVisibility() {
+      const icon = document.getElementById("ascensionIcon");
+      const number = document.getElementById("ascensionNumber");
 
-const number = document.createElement("div");
-number.id = "ascensionNumber";
-number.innerText = "1";
+      if (!icon || !number) return;
 
-preview.appendChild(icon);
-preview.appendChild(number);
+      const enabled = getAscensionFlag();
+      const show = enabled;
 
-}
+      icon.style.display = show ? "block" : "none";
+      number.style.display = show ? "block" : "none";
+      number.textContent = getAscensionLevel();
+    }
 
-function hookCheckbox(){
+    function drawFrameCanvas() {
+      const frameCanvas = document.getElementById("frame");
+      if (!frameCanvas) return;
 
-const labels = Array.from(document.querySelectorAll("label"));
+      const ctx = frameCanvas.getContext("2d");
+      if (!ctx) return;
 
-const target = labels.find(l =>
-(l.textContent || "").toUpperCase().includes("ASCENSION")
-);
+      const tier = getCurrentTier();
+      const src = (getFrameFlag() && tier === 7)
+        ? "assets/old_champion-frame-7.png"
+        : `assets/champion-frame-${tier}.png`;
 
-if(!target) return;
+      const img = new Image();
+      img.onload = function () {
+        ctx.clearRect(0, 0, 500, 500);
+        ctx.drawImage(img, 78, 70);
+      };
+      img.src = src;
+    }
 
-const checkbox = target.querySelector("input");
+    function buildAscensionControl() {
+      const labels = Array.from(document.querySelectorAll("label"));
+      const duplicatedLabel = labels.find(l =>
+        (l.textContent || "").trim().toUpperCase().includes("ESTA DUPLICADO")
+      );
 
-if(!checkbox) return;
+      if (!duplicatedLabel) return false;
+      if (document.getElementById("toggle-old-7frame")) return true;
 
-checkbox.addEventListener("change", () => {
+      const wrap = document.createElement("label");
+      wrap.className = "input-group ascension-inline-wrap";
 
-const icon = document.getElementById("ascensionIcon");
-const number = document.getElementById("ascensionNumber");
+      const span = document.createElement("span");
+      span.className = "ascension-inline-content";
 
-if(!icon) return;
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.id = "toggle-old-7frame";
+      checkbox.checked = getFrameFlag();
 
-if(checkbox.checked){
+      const text = document.createElement("span");
+      text.textContent = " USAR MARCO 7★ ASCENSION? ";
 
-icon.style.display = "block";
-number.style.display = "block";
+      const levelLabel = document.createElement("span");
+      levelLabel.id = "ascensionLevelLabel";
+      levelLabel.textContent = " NIVEL ";
 
-}else{
+      const select = document.createElement("select");
+      select.id = "ascensionLevel";
+      for (let i = 1; i <= 12; i++) {
+        const opt = document.createElement("option");
+        opt.value = String(i);
+        opt.textContent = String(i);
+        if (String(i) === getAscensionLevel()) opt.selected = true;
+        select.appendChild(opt);
+      }
 
-icon.style.display = "none";
-number.style.display = "none";
+      span.appendChild(checkbox);
+      span.appendChild(text);
+      span.appendChild(levelLabel);
+      span.appendChild(select);
+      wrap.appendChild(span);
 
-}
+      duplicatedLabel.insertAdjacentElement("afterend", wrap);
 
-});
+      checkbox.addEventListener("change", () => {
+        const checked = checkbox.checked;
+        setFrameFlag(checked);
+        setAscensionFlag(checked);
+        updateAscensionVisibility();
+        toggleLevelVisibility();
+        drawFrameCanvas();
+      });
 
-}
+      select.addEventListener("change", () => {
+        setAscensionLevel(select.value);
+        updateAscensionVisibility();
+      });
 
-function init(){
+      toggleLevelVisibility();
+      return true;
+    }
 
-injectAscension();
-hookCheckbox();
+    function toggleLevelVisibility() {
+      const select = document.getElementById("ascensionLevel");
+      const label = document.getElementById("ascensionLevelLabel");
+      const checked = getAscensionFlag();
 
-}
+      if (select) select.style.display = checked ? "inline-block" : "none";
+      if (label) label.style.display = checked ? "inline-block" : "none";
+    }
 
-setInterval(init,500);
+    function hookTierChanges() {
+      const tierInput = document.querySelector('input[type="number"][min="1"][max="7"]');
+      if (!tierInput || tierInput.dataset.ascensionHooked === "1") return;
+      tierInput.dataset.ascensionHooked = "1";
 
-</script>
+      tierInput.addEventListener("input", () => {
+        setTimeout(() => {
+          drawFrameCanvas();
+          updateAscensionVisibility();
+        }, 30);
+      });
 
-</body>
+      tierInput.addEventListener("change", () => {
+        setTimeout(() => {
+          drawFrameCanvas();
+          updateAscensionVisibility();
+        }, 30);
+      });
+    }
+
+    function hookExportButton() {
+      const btn = document.querySelector("button.button-contest");
+      if (!btn || btn.dataset.ascensionExportHooked === "1") return false;
+      btn.dataset.ascensionExportHooked = "1";
+
+      btn.addEventListener("click", function (ev) {
+        ev.preventDefault();
+        ev.stopImmediatePropagation();
+
+        const out = document.createElement("canvas");
+        out.width = 500;
+        out.height = 500;
+        const ctx = out.getContext("2d");
+
+        const ids = ["background", "frame", "portrait", "engraving", "tier", "strings", "rank"];
+        ids.forEach(id => {
+          const canvas = document.getElementById(id);
+          if (canvas) ctx.drawImage(canvas, 0, 0);
+        });
+
+        if (getAscensionFlag()) {
+          const icon = new Image();
+          icon.onload = function () {
+            ctx.drawImage(icon, 392, 390, 82, 82);
+
+            ctx.font = "bold 28px 'Hanzel Normal', sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = "black";
+            ctx.fillStyle = "white";
+
+            const x = 433;
+            const y = 431;
+            const txt = getAscensionLevel();
+
+            ctx.strokeText(txt, x, y);
+            ctx.fillText(txt, x, y);
+
+            const a = document.createElement("a");
+            a.download = `portrait-${Date.now()}.png`;
+            a.href = out.toDataURL("image/png");
+            a.click();
+          };
+          icon.onerror = function () {
+            this.onerror = null;
+            this.src = "assets/ascension.png";
+          };
+          icon.src = getAscensionAssetPath();
+        } else {
+          const a = document.createElement("a");
+          a.download = `portrait-${Date.now()}.png`;
+          a.href = out.toDataURL("image/png");
+          a.click();
+        }
+      }, true);
+
+      return true;
+    }
+
+    function installFrameHook() {
+      try {
+        const desc = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, "src");
+        if (desc && typeof desc.set === "function" && typeof desc.get === "function" && !window.__ascensionFrameHookInstalled) {
+          window.__ascensionFrameHookInstalled = true;
+
+          Object.defineProperty(HTMLImageElement.prototype, "src", {
+            get: desc.get,
+            set: function (value) {
+              try {
+                const tier = getCurrentTier();
+                if (
+                  getFrameFlag() &&
+                  tier === 7 &&
+                  typeof value === "string" &&
+                  value.includes("champion-frame-7.png") &&
+                  !value.includes("old_champion-frame-7.png")
+                ) {
+                  value = value.replace("champion-frame-7.png", "old_champion-frame-7.png");
+                }
+              } catch (e) {}
+              return desc.set.call(this, value);
+            },
+            configurable: true,
+            enumerable: true
+          });
+        }
+      } catch (e) {}
+    }
+
+    function init() {
+      ensureAscensionOverlay();
+      buildAscensionControl();
+      hookTierChanges();
+      hookExportButton();
+      updateAscensionVisibility();
+    }
+
+    installFrameHook();
+
+    let tries = 0;
+    const timer = setInterval(() => {
+      tries++;
+      init();
+      if (
+        document.getElementById("preview") &&
+        document.getElementById("toggle-old-7frame") &&
+        document.querySelector("button.button-contest")
+      ) {
+        clearInterval(timer);
+      }
+      if (tries > 200) clearInterval(timer);
+    }, 100);
+
+    const observer = new MutationObserver(() => {
+      init();
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      observer.observe(document.body, { childList: true, subtree: true });
+      init();
+    });
+  })();
+  </script>
+
+  <body>
+    <div id="app"></div>
+  </body>
 </html>
