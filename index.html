@@ -255,28 +255,28 @@
 
               if (getAscensionFlag()) {
                 const icon = new Image();
-                icon.onload = function () {
-                  ctx.drawImage(icon, 392, 390, 82, 82);
+icon.onload = function () {
+  ctx.drawImage(icon, 374, 368, 74, 74);
 
-                  ctx.font = "bold 28px 'Hanzel Normal', sans-serif";
-                  ctx.textAlign = "center";
-                  ctx.textBaseline = "middle";
-                  ctx.lineWidth = 4;
-                  ctx.strokeStyle = "black";
-                  ctx.fillStyle = "white";
+  ctx.font = "bold 24px 'Hanzel Normal', sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = "black";
+  ctx.fillStyle = "white";
 
-                  const x = 433;
-                  const y = 431;
-                  const txt = getAscensionLevel();
+  const x = 411;
+  const y = 405;
+  const txt = getAscensionLevel();
 
-                  ctx.strokeText(txt, x, y);
-                  ctx.fillText(txt, x, y);
+  ctx.strokeText(txt, x, y);
+  ctx.fillText(txt, x, y);
 
-                  const a = document.createElement("a");
-                  a.download = `portrait-${Date.now()}.png`;
-                  a.href = out.toDataURL("image/png");
-                  a.click();
-                };
+  const a = document.createElement("a");
+  a.download = `portrait-${Date.now()}.png`;
+  a.href = out.toDataURL("image/png");
+  a.click();
+};
                 icon.onerror = function () {
                   this.onerror = null;
                   this.src = "assets/ascension.png";
