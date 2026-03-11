@@ -113,25 +113,35 @@
         }
 
         function drawFrameCanvas() {
-          const frameCanvas = getFrameCanvas();
-          if (!frameCanvas) return;
+  const frameCanvas = getFrameCanvas();
+  if (!frameCanvas) return;
 
-          const ctx = frameCanvas.getContext("2d");
-          if (!ctx) return;
+  const ctx = frameCanvas.getContext("2d");
+  if (!ctx) return;
 
-          const tier = getCurrentTier();
-          const src =
-            getFrameFlag() && tier === 7
-              ? "assets/old_champion-frame-7.png"
-              : `assets/champion-frame-${tier}.png`;
+  const tier = getCurrentTier();
+  const useOld = getFrameFlag() && tier === 7;
 
-          const img = new Image();
-          img.onload = function () {
-            ctx.clearRect(0, 0, 500, 500);
-            ctx.drawImage(img, 78, 70);
-          };
-          img.src = src;
-        }
+  const src = useOld
+    ? "assets/old_champion-frame-7.png"
+    : `assets/champion-frame-${tier}.png`;
+
+  const img = new Image();
+  img.onload = function () {
+    ctx.clearRect(0, 0, 500, 500);
+
+    let x = 78;
+    let y = 70;
+
+    /* Corrección solo para champion-frame-7.png */
+    if (tier === 7 && !useOld) {
+      x = 74;
+    }
+
+    ctx.drawImage(img, x, y);
+  };
+  img.src = src;
+}
 
         function buildAscensionControl() {
           if (document.getElementById("toggle-old-7frame")) return true;
